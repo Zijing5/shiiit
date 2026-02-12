@@ -1,0 +1,30 @@
+<view class="page">
+  <view class="section">
+    <text class="label">形状</text>
+    <picker mode="selector" range="{{shapes}}" value="{{shapeIndex}}" bindchange="onShapeChange">
+      <view class="picker">{{selectedShape}}</view>
+    </picker>
+  </view>
+  <view class="section">
+    <text class="label">分量</text>
+    <picker mode="selector" range="{{amounts}}" value="{{amountIndex}}" bindchange="onAmountChange">
+      <view class="picker">{{selectedAmount}}</view>
+    </picker>
+  </view>
+  <view class="section">
+    <text class="label">拉屎感想</text>
+    <view class="feeling-row">
+      <input
+        class="feeling-input"
+        placeholder="开心/爽/困/累/饿/烦"
+        placeholder-class="feeling-placeholder"
+        value="{{feeling}}"
+        bindinput="onFeelingInput"
+      />
+      <text class="feeling-suffix">屎了</text>
+    </view>
+  </view>
+  <view class="btn-wrap">
+    <view class="btn" bindtap="onTapSubmit">打卡</view>
+  </view>
+</view>

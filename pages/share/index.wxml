@@ -1,0 +1,16 @@
+<view class="page">
+  <view class="top-bar">
+    <view class="close-wrap" bindtap="onClose">
+      <text class="close-icon">×</text>
+    </view>
+  </view>
+  <view wx:if="{{!shareImageReady}}" class="loading">生成分享图中...</view>
+  <block wx:if="{{shareImageReady}}">
+    <image class="share-preview" src="{{shareImagePath}}" mode="widthFix" />
+    <view class="share-btns">
+      <view class="share-btn left" bindtap="saveToAlbum">保存到相册</view>
+      <button class="share-btn right" open-type="share">分享给朋友</button>
+    </view>
+  </block>
+  <canvas canvas-id="shareCanvas" class="canvas-off" style="width: 375px; height: 500px;" />
+</view>

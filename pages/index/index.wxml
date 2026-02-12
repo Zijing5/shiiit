@@ -1,0 +1,7 @@
+<view class="container">
+  <image class="shit-icon" src="/shit0.png" mode="aspectFit" />
+  <text class="slogan">屎了吗您？</text>
+  <view class="btn-wrap">
+    <view class="btn-rect" bindtap="onTapCheckIn">今日打卡</view>
+  </view>
+</view>

@@ -1,0 +1,12 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/record/index",
+    "pages/share/index",
+    "pages/result/result"
+  ],
+  "window": {
+    "navigationBarTitleText": "拉屎打卡",
+    "navigationBarBackgroundColor": "#f8f4f0"
+  }
+}

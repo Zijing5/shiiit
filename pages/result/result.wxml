@@ -1,0 +1,23 @@
+<view class="page">
+  <view class="header">
+    <text class="nav-btn" bindtap="prevMonth">‹</text>
+    <text class="month-label">{{monthLabel}}</text>
+    <text class="nav-btn" bindtap="nextMonth">›</text>
+  </view>
+  <view class="weekdays">
+    <block wx:for="{{weekLabels}}" wx:key="*this">
+      <text class="weekday">{{item}}</text>
+    </block>
+  </view>
+  <view class="grid">
+    <block wx:for="{{cells}}" wx:key="index">
+      <view class="cell {{item.isToday ? 'today' : ''}} {{item.checked ? 'checked' : ''}}">
+        <text wx:if="{{item.day}}" class="day-num">{{item.day}}</text>
+        <text wx:if="{{item.day && item.checked}}" class="check">✓</text>
+      </view>
+    </block>
+  </view>
+  <view class="bottom-btn-wrap">
+    <view class="bottom-btn" bindtap="onShareToday">分享今日拉屎成就</view>
+  </view>
+</view>
