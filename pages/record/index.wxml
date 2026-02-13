@@ -1,5 +1,4 @@
 <view class="page">
-  <view class="rule-tip">规则：一天可多次打卡，系统会展示当天最后一次，并统计共几次。</view>
   <view class="section">
     <text class="label">形状</text>
     <picker mode="selector" range="{{shapes}}" value="{{shapeIndex}}" bindchange="onShapeChange">
