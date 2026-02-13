@@ -1,7 +1,6 @@
 <view class="page">
   <view class="card" wx:if="{{record}}">
     <text class="title">打卡成功</text>
-    <text class="rule">规则：一天可多次打卡，系统展示当天最后一次，并统计共几次。</text>
     <view class="row">
       <text class="label">日期</text>
       <text class="value">{{record.date}}</text>
@@ -27,7 +26,6 @@
   <view wx:if="{{sharePopupVisible}}" class="mask" bindtap="closeSharePopup"></view>
   <view wx:if="{{sharePopupVisible}}" class="share-popup">
     <text class="popup-title">分享打卡图片</text>
-    <text class="popup-sub">弹窗分享，不跳转页面</text>
 
     <view wx:if="{{shareLoading}}" class="loading">图片生成中...</view>
     <image

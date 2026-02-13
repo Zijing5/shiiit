@@ -19,7 +19,6 @@
   </view>
   <view class="bottom-btn-wrap">
     <view class="bottom-btn" bindtap="onShareToday">分享今日拉屎成就</view>
-    <text class="rule-tip">规则：一天可多次打卡，系统按最后一次展示，并统计共几次。</text>
   </view>
 
   <view wx:if="{{detailVisible}}" class="mask" bindtap="closeDetail"></view>
