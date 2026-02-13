@@ -130,7 +130,7 @@ Page({
         shape: r.shape || '未填',
         amount: r.amount || '未填',
         feeling: (r.feeling || '开心') + '屎了',
-        timeText: formatTime(r.createdAt)
+        timeText: r.hasRealTime ? formatTime(r.createdAt) : '--:--'
       }))
     })
   },

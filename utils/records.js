@@ -36,6 +36,7 @@ function toTimestamp(value, fallbackDate, index) {
 
 function normalizeRecord(raw, index) {
   const date = (raw && raw.date) || todayStr()
+  const hasRealTime = !!(raw && (typeof raw.createdAt === 'number' || (typeof raw.createdAt === 'string' && raw.createdAt.length > 10)))
   const createdAt = toTimestamp(raw && raw.createdAt, date, index)
   const id = (raw && raw.id) || ('legacy-' + createdAt + '-' + index)
   return {
@@ -45,6 +46,7 @@ function normalizeRecord(raw, index) {
     amount: (raw && raw.amount) || '',
     feeling: (raw && raw.feeling) || '',
     createdAt,
+    hasRealTime,
     shareImagePath: (raw && raw.shareImagePath) || '',
     shareSlogan: (raw && raw.shareSlogan) || ''
   }
@@ -56,7 +58,7 @@ function loadRecords() {
   let changed = false
   const list = raw.map((item, index) => {
     const normalized = normalizeRecord(item, index)
-    if (!item || !item.id || !item.createdAt) changed = true
+    if (!item || !item.id || item.hasRealTime === undefined) changed = true
     return normalized
   })
   if (changed) saveRecords(list)
@@ -76,7 +78,8 @@ function addRecord(partial) {
     shape: (partial && partial.shape) || '',
     amount: (partial && partial.amount) || '',
     feeling: (partial && partial.feeling) || '',
-    createdAt: now
+    createdAt: now,
+    hasRealTime: true
   }
   list.push(record)
   saveRecords(list)
