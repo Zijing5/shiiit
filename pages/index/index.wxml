@@ -1,5 +1,5 @@
 <view class="container">
-  <image class="shit-icon" src="/shit0.png" mode="aspectFit" />
+  <image class="shit-icon" src="{{shitIconUrl}}" mode="aspectFit" />
   <text class="slogan">屎了吗您？</text>
   <view class="status-card">
     <text class="status-title">{{todayStatus}}</text>

@@ -6,9 +6,11 @@ const {
   getStreakEndingToday,
   getLatestRecordByDate
 } = require('../../utils/records')
+const { getShitImageUrl } = require('../../config/images')
 
 Page({
   data: {
+    shitIconUrl: getShitImageUrl('shit0') || '/images/shit0.png',
     todayStatus: '今天还没打卡',
     todaySubStatus: '去完成一次打卡吧',
     streakCount: 0,

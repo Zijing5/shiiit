@@ -3,6 +3,7 @@ const {
   getRecordById,
   updateRecordById
 } = require('../../utils/records')
+const { getShitImageUrl } = require('../../config/images')
 
 const SLOGANS = [
   '闺蜜，今天你拉屎了吗？',
@@ -147,11 +148,13 @@ Page({
     const isConstipation = record.shape === '便秘'
     const list = isConstipation ? ['shit8'] : (SHAPE_IMAGES[record.shape] || SHAPE_IMAGES['完美'])
     const chosen = list[Math.floor(Math.random() * list.length)]
+    const cdnUrl = getShitImageUrl(chosen)
     const SHIT_PATHS = [
+      cdnUrl,
       '/images/' + chosen + '.png',
       'images/' + chosen + '.png',
       '/' + chosen + '.png'
-    ]
+    ].filter(Boolean)
     const FALLBACK_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
     // 临时文件 path 可能是 http://usr/xxx，不能加前缀 /，否则变成 /http://... 报 500
     function drawImagePath(p) {
@@ -269,7 +272,7 @@ Page({
     }
     function tryNext(i) {
       if (i >= SHIT_PATHS.length) {
-        console.warn('[confirm] 所有包内路径都失败，写 base64 到临时文件再画')
+        console.warn('[confirm] 所有路径都失败，写 base64 到临时文件再画')
         const fs = wx.getFileSystemManager()
         const tmpPath = `${wx.env.USER_DATA_PATH}/shit_fallback.png`
         fs.writeFile({
@@ -279,8 +282,8 @@ Page({
           success: () => {
             wx.getImageInfo({
               src: tmpPath,
-            success: (r) => tryDraw(r.path, { totalCount, textA, textB }),
-            fail: () => tryDraw(null, { totalCount, textA, textB })
+              success: (r) => tryDraw(r.path, { totalCount, textA, textB }),
+              fail: () => tryDraw(null, { totalCount, textA, textB })
             })
           },
           fail: () => tryDraw(null, { totalCount, textA, textB })
@@ -288,12 +291,35 @@ Page({
         return
       }
       const src = SHIT_PATHS[i]
+      const isNetwork = typeof src === 'string' && (src.startsWith('http://') || src.startsWith('https://'))
+      if (isNetwork) {
+        wx.downloadFile({
+          url: src,
+          success: (res) => {
+            if (res.statusCode === 200) {
+              wx.getImageInfo({
+                src: res.tempFilePath,
+                success: (r) => tryDraw(r.path, { totalCount, textA, textB }),
+                fail: () => tryNext(i + 1)
+              })
+            } else {
+              console.warn('[confirm] 网络图下载非 200', src, 'statusCode=', res.statusCode)
+              tryNext(i + 1)
+            }
+          },
+          fail: (err) => {
+            console.warn('[confirm] 网络图下载失败', src, err)
+            tryNext(i + 1)
+          }
+        })
+        return
+      }
       wx.getImageInfo({
         src,
         success: (res) => {
           tryDraw(res.path, { totalCount, textA, textB })
         },
-        fail: (err) => {
+        fail: () => {
           tryNext(i + 1)
         }
       })
