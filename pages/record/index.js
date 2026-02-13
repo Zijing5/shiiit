@@ -1,4 +1,4 @@
-// 填写页 - 选择形状、分量后打卡
+// 填写页 - 选择形状、份量后打卡
 const SHAPES = ['完美', '偏硬', '偏软', '稀']
 const AMOUNTS = ['少', '中', '多','超级无敌爆炸多']
 const { addRecord, todayStr } = require('../../utils/records')
@@ -27,6 +27,30 @@ Page({
   onAmountChange(e) {
     const i = Number(e.detail.value)
     this.setData({ amountIndex: i, selectedAmount: AMOUNTS[i] })
+  },
+
+  onTapConstipation() {
+    if (this.data.submitting) return
+    const date = todayStr()
+    this.setData({ submitting: true })
+    try {
+      const record = addRecord({ date, shape: '便秘', amount: '', feeling: '烦' })
+      wx.showToast({ title: '已记录', icon: 'success' })
+      setTimeout(() => {
+        const q =
+          'id=' + encodeURIComponent(record.id || '') +
+          '&shape=' + encodeURIComponent('便秘') +
+          '&date=' + encodeURIComponent(date)
+        wx.redirectTo({
+          url: '/pages/confirm/index?' + q,
+          complete: () => this.setData({ submitting: false })
+        })
+      }, 600)
+    } catch (e) {
+      console.error(e)
+      this.setData({ submitting: false })
+      wx.showToast({ title: '记录失败，请重试', icon: 'none' })
+    }
   },
 
   onTapSubmit() {

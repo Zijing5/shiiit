@@ -6,7 +6,7 @@
     </picker>
   </view>
   <view class="section">
-    <text class="label">分量</text>
+    <text class="label">份量</text>
     <picker mode="selector" range="{{amounts}}" value="{{amountIndex}}" bindchange="onAmountChange">
       <view class="picker">{{selectedAmount}}</view>
     </picker>
@@ -25,6 +25,7 @@
     </view>
   </view>
   <view class="btn-wrap">
+    <view class="btn btn-constipation {{submitting ? 'disabled' : ''}}" bindtap="onTapConstipation">便秘</view>
     <view class="btn {{submitting ? 'disabled' : ''}}" bindtap="onTapSubmit">{{submitting ? '提交中...' : '打卡'}}</view>
   </view>
 </view>

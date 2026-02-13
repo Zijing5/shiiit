@@ -16,12 +16,20 @@ const SHAPE_TEXTS = {
   '偏软': '我拉出了软软的便便',
   '稀': '我拉稀了...'
 }
-// 分量 -> 匹配文案 b
+// 份量 -> 匹配文案 b
 const AMOUNT_TEXTS = {
   '少': '份量不多',
   '中': '份量不多不少刚刚好',
   '多': '份量很多',
   '超级无敌爆炸多': '份量超级无敌爆炸多'
+}
+
+// 形状 -> 屎图候选列表（从对应列表随机选一张），图片在主目录或 images/
+const SHAPE_IMAGES = {
+  '完美': ['shit13', 'shit1', 'shit5', 'shit6'],
+  '偏硬': ['shit14', 'shit2', 'shit9', 'shit11'],
+  '偏软': ['shit14', 'shit2', 'shit9', 'shit11'],
+  '稀': ['shit3', 'shit4', 'shit12', 'shit9']
 }
 
 const W = 375
@@ -136,11 +144,13 @@ Page({
       }
     }, 8000)
 
+    const isConstipation = record.shape === '便秘'
+    const list = isConstipation ? ['shit8'] : (SHAPE_IMAGES[record.shape] || SHAPE_IMAGES['完美'])
+    const chosen = list[Math.floor(Math.random() * list.length)]
     const SHIT_PATHS = [
-      '/images/shit0_small.png',
-      'images/shit0_small.png',
-      '/images/shit0.png',
-      '/pages/share/shit0.png'
+      '/images/' + chosen + '.png',
+      'images/' + chosen + '.png',
+      '/' + chosen + '.png'
     ]
     const FALLBACK_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
     // 临时文件 path 可能是 http://usr/xxx，不能加前缀 /，否则变成 /http://... 报 500
@@ -156,6 +166,9 @@ Page({
       const record = that.data.record
       if (!record) return
 
+      const isConstipation = record.shape === '便秘'
+      const drawPath = shitImagePath ? drawImagePath(shitImagePath) : null
+
       // 背景
       ctx.setFillStyle('#f8f4f0')
       ctx.fillRect(0, 0, W, H)
@@ -168,54 +181,74 @@ Page({
       ctx.fill()
       ctx.stroke()
 
-      // 标题、日期
-      ctx.setFillStyle('#333')
-      ctx.setFontSize(18)
-      ctx.setTextAlign('center')
-      ctx.fillText('今日拉屎', W / 2, 62)
-      ctx.setFontSize(14)
-      ctx.setFillStyle('#666')
-      ctx.fillText(record.date, W / 2, 98)
+      if (isConstipation) {
+        // 便秘分享图：标题+日期 + 大 shit8 + 诡秘，我便秘了！！！
+        ctx.setFillStyle('#333')
+        ctx.setFontSize(18)
+        ctx.setTextAlign('center')
+        ctx.fillText('今日拉屎', W / 2, 62)
+        ctx.setFontSize(14)
+        ctx.setFillStyle('#666')
+        ctx.fillText(record.date, W / 2, 98)
 
-      // 屎图
-      const shitSize = 56
-      const shitX = (W - shitSize) / 2
-      const shitY = 168
-      const drawPath = shitImagePath ? drawImagePath(shitImagePath) : null
-      if (drawPath) {
-        ctx.drawImage(drawPath, shitX, shitY, shitSize, shitSize)
+        const bigSize = 260
+        const bigX = (W - bigSize) / 2
+        const bigY = 120
+        if (drawPath) {
+          ctx.drawImage(drawPath, bigX, bigY, bigSize, bigSize)
+        }
+        ctx.setFillStyle('#5c5348')
+        ctx.setFontSize(20)
+        ctx.setTextAlign('center')
+        ctx.fillText('诡秘，我便秘了！！！', W / 2, 420)
+      } else {
+        // 标题、日期
+        ctx.setFillStyle('#333')
+        ctx.setFontSize(18)
+        ctx.setTextAlign('center')
+        ctx.fillText('今日拉屎', W / 2, 62)
+        ctx.setFontSize(14)
+        ctx.setFillStyle('#666')
+        ctx.fillText(record.date, W / 2, 98)
+
+        // 屎图
+        const shitSize = 56
+        const shitX = (W - shitSize) / 2
+        const shitY = 168
+        if (drawPath) {
+          ctx.drawImage(drawPath, shitX, shitY, shitSize, shitSize)
+        }
+
+        // 屎图下方：信笺式排版
+        ctx.setFillStyle('#5c5348')
+        ctx.setFontSize(15)
+        const lineH = 28
+        let y = 252
+        ctx.fillText('今天是我第' + totalCount + '次拉噗噗打卡', W / 2, y)
+        y += lineH
+        if (textA) { ctx.fillText(textA, W / 2, y); y += lineH }
+        if (textB) { ctx.fillText(textB, W / 2, y); y += lineH }
+        y += 26
+        ctx.fillText('闺蜜，今天我真的感觉', W / 2, y)
+        y += lineH
+        ctx.fillText((record.feeling || '开心') + '屎了', W / 2, y)
+
+        // 最底部：喜报/闺蜜/祝你 文案，圆角矩形
+        ctx.setFontSize(14)
+        const boxMargin = 28
+        const boxW = W - boxMargin * 2
+        const boxH = 36
+        const boxX = boxMargin
+        const boxY = 458 - boxH / 2 - 4
+        ctx.setFillStyle('#f5f0eb')
+        ctx.setStrokeStyle('#e8d5c4')
+        ctx.setLineWidth(1)
+        roundRect(ctx, boxX, boxY, boxW, boxH, 10)
+        ctx.fill()
+        ctx.stroke()
+        ctx.setFillStyle('#c4956a')
+        ctx.fillText(slogan, W / 2, 458)
       }
-
-      // 屎图下方：信笺式排版，行距大、字稍大；前三行与后两行之间留白
-      ctx.setFillStyle('#5c5348')
-      ctx.setFontSize(15)
-      const lineH = 28
-      let y = 252
-      const line1 = '今天是我第' + totalCount + '次拉噗噗打卡'
-      ctx.fillText(line1, W / 2, y)
-      y += lineH
-      if (textA) { ctx.fillText(textA, W / 2, y); y += lineH }
-      if (textB) { ctx.fillText(textB, W / 2, y); y += lineH }
-      y += 26
-      ctx.fillText('闺蜜，今天我真的感觉', W / 2, y)
-      y += lineH
-      ctx.fillText((record.feeling || '开心') + '屎了', W / 2, y)
-
-      // 最底部：喜报/闺蜜/祝你 文案，用圆角矩形装饰，拉长贴两边
-      ctx.setFontSize(14)
-      const boxMargin = 28
-      const boxW = W - boxMargin * 2
-      const boxH = 36
-      const boxX = boxMargin
-      const boxY = 458 - boxH / 2 - 4
-      ctx.setFillStyle('#f5f0eb')
-      ctx.setStrokeStyle('#e8d5c4')
-      ctx.setLineWidth(1)
-      roundRect(ctx, boxX, boxY, boxW, boxH, 10)
-      ctx.fill()
-      ctx.stroke()
-      ctx.setFillStyle('#c4956a')
-      ctx.fillText(slogan, W / 2, 458)
 
       const doDraw = () => {
         ctx.draw(false, () => {

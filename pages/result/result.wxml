@@ -11,9 +11,9 @@
   </view>
   <view class="grid">
     <block wx:for="{{cells}}" wx:key="index">
-      <view class="cell {{item.isToday ? 'today' : ''}} {{item.checked ? 'checked' : ''}}" data-day="{{item.day}}" bindtap="onTapDay">
+      <view class="cell {{item.isToday ? 'today' : ''}} {{item.checked ? 'checked' : ''}} {{item.hasConstipation ? 'constipation' : ''}}" data-day="{{item.day}}" bindtap="onTapDay">
         <text wx:if="{{item.day}}" class="day-num">{{item.day}}</text>
-        <text wx:if="{{item.day && item.checked}}" class="check">{{item.count > 1 ? ('x' + item.count) : '✓'}}</text>
+        <text wx:if="{{item.day && item.checked}}" class="check {{item.hasConstipation ? 'constipation' : ''}}">{{item.count > 1 ? ('x' + item.count) : '✓'}}</text>
       </view>
     </block>
   </view>
@@ -33,7 +33,7 @@
       <view class="record-item">
         <view class="record-info">
           <text class="record-line">时间：{{item.timeText}}</text>
-          <text class="record-line">形状：{{item.shape}}｜分量：{{item.amount}}</text>
+          <text class="record-line">形状：{{item.shape}}｜份量：{{item.amount}}</text>
           <text class="record-line">感想：{{item.feeling}}</text>
         </view>
         <view class="del-btn" data-id="{{item.id}}" bindtap="onDeleteRecord">删除</view>

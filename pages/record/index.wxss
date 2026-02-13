@@ -62,11 +62,13 @@
 .btn-wrap {
   margin-top: 80rpx;
   display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 24rpx;
 }
 
 .btn {
-  width: 400rpx;
+  width: 380rpx;
   height: 88rpx;
   border-radius: 44rpx;
   background: linear-gradient(145deg, #d4a574, #c4956a);
@@ -77,6 +79,12 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 8rpx 24rpx rgba(0,0,0,0.12);
+}
+
+.btn-constipation {
+  width: 160rpx;
+  background: linear-gradient(145deg, #d64545, #c03939);
+  font-size: 30rpx;
 }
 
 .btn:active {

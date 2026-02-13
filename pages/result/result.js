@@ -58,15 +58,18 @@ Page({
     const stats = getDateStats(records)
     const cellList = buildCalendar(year, month).map((d) => {
       if (d == null) {
-        return { day: null, checked: false, isToday: false, count: 0 }
+        return { day: null, checked: false, isToday: false, count: 0, hasConstipation: false }
       }
       const ds = dateStr(year, month, d)
       const oneDay = stats[ds]
+      const dayRecords = getRecordsByDate(records, ds)
+      const hasConstipation = dayRecords.some((r) => r.shape === '便秘')
       return {
         day: d,
         checked: !!oneDay,
         count: oneDay ? oneDay.count : 0,
-        isToday: ds === todayStr()
+        isToday: ds === todayStr(),
+        hasConstipation
       }
     })
 

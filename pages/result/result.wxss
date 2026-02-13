@@ -67,6 +67,11 @@
   background: rgba(196, 149, 106, 0.15);
 }
 
+.check.constipation {
+  color: #c03939;
+  background: rgba(192, 57, 57, 0.2);
+}
+
 .check {
   position: absolute;
   bottom: 8rpx;
@@ -80,6 +85,10 @@
 
 .cell.checked .day-num {
   color: #2d8a3e;
+}
+
+.cell.checked.constipation .day-num {
+  color: #c03939;
 }
 
 .bottom-btn-wrap {
