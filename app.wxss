@@ -1,5 +1,11 @@
 /* 全局样式 */
 page {
+  height: 100%;
   background-color: #f8f4f0;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
+
+/* 禁止整页上下滑动、适应窗口，不出现右侧滚动条 */
