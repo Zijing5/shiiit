@@ -6,11 +6,11 @@
       <text class="value">{{record.date}}</text>
     </view>
     <view class="row">
-      <text class="label">形状</text>
+      <text class="label">形态</text>
       <text class="value">{{record.shape}}</text>
     </view>
     <view class="row">
-      <text class="label">分量</text>
+      <text class="label">份量</text>
       <text class="value">{{record.amount}}</text>
     </view>
     <view class="row">
@@ -39,7 +39,10 @@
       <view class="pop-btn secondary" bindtap="saveToAlbum">保存图片</view>
       <view class="pop-btn primary" bindtap="onShareImage">分享给朋友</view>
     </view>
+    <!-- canvas 放在弹层内，打开弹层时才会渲染，旧版 canvas 的 draw 回调才可能触发 -->
+    <canvas canvas-id="shareCanvas" class="canvas-off" style="width: 375px; height: 500px;" />
   </view>
-
-  <canvas canvas-id="shareCanvas" class="canvas-off" style="width: 375px; height: 500px;" />
 </view>
+
+
+形状：['']

@@ -6,9 +6,23 @@ const {
 
 const SLOGANS = [
   '闺蜜，今天你拉屎了吗？',
-  '祝你大便永远通畅！',
-  '喜报，我拉屎了！'
+  '祝你大便永远通畅！'
 ]
+
+// 形状 -> 匹配文案 a
+const SHAPE_TEXTS = {
+  '完美': '我拉出了完美的便便',
+  '偏硬': '我拉出了硬硬的便便',
+  '偏软': '我拉出了软软的便便',
+  '稀': '我拉稀了...'
+}
+// 分量 -> 匹配文案 b
+const AMOUNT_TEXTS = {
+  '少': '份量不多',
+  '中': '份量不多不少刚刚好',
+  '多': '份量很多',
+  '超级无敌爆炸多': '份量超级无敌爆炸多'
+}
 
 const W = 375
 const H = 500
@@ -91,26 +105,7 @@ Page({
     const { record, shareLoading } = this.data
     if (!record || shareLoading) return
 
-    const cachedPath = record.shareImagePath || ''
-    if (cachedPath) {
-      this.setData({ shareLoading: true })
-      wx.getFileInfo({
-        filePath: cachedPath,
-        success: () => {
-          this.setData({
-            shareLoading: false,
-            shareImageReady: true,
-            shareImagePath: cachedPath,
-            slogan: record.shareSlogan || ''
-          })
-        },
-        fail: () => {
-          this._generateShareImage()
-        }
-      })
-      return
-    }
-
+    // 始终重新生成，保证是「标题+日期+感想+屎图+文案」完整卡片（旧缓存可能是只有屎图的调试图）
     this._generateShareImage()
   },
 
@@ -120,68 +115,157 @@ Page({
 
     const slogan = record.shareSlogan || SLOGANS[Math.floor(Math.random() * SLOGANS.length)]
     this.setData({ shareLoading: true, shareImageReady: false, slogan })
-    const ctx = wx.createCanvasContext('shareCanvas', this)
 
-    ctx.setFillStyle('#f8f4f0')
-    ctx.fillRect(0, 0, W, H)
-    ctx.setFillStyle('#c4956a')
-    ctx.fillRect(15, 15, W - 30, H - 30)
-    ctx.setFillStyle('#fff')
-    ctx.setStrokeStyle('#e8d5c4')
-    ctx.setLineWidth(1.5)
-    roundRect(ctx, 20, 20, W - 40, H - 40, 10)
-    ctx.fill()
-    ctx.stroke()
+    const all = loadRecords()
+    const totalCount = all.length
+    const textA = SHAPE_TEXTS[record.shape] || ''
+    const textB = AMOUNT_TEXTS[record.amount] || ''
 
-    ctx.setFillStyle('#333')
-    ctx.setFontSize(18)
-    ctx.setTextAlign('center')
-    ctx.fillText('今日拉屎', W / 2, 62)
-    ctx.setFontSize(14)
-    ctx.setFillStyle('#666')
-    ctx.fillText(record.date, W / 2, 98)
+    const that = this
+    let done = false
+    function finishLoading() {
+      if (done) return
+      done = true
+      that.setData({ shareLoading: false })
+    }
+    const timeout = setTimeout(() => {
+      if (!done) {
+        console.warn('[confirm] 生成超时')
+        finishLoading()
+        wx.showToast({ title: '生成超时，请重试', icon: 'none' })
+      }
+    }, 8000)
 
-    const feelingText = (record.feeling || '开心') + ' 屎了'
-    ctx.setFontSize(16)
-    ctx.setFillStyle('#c4956a')
-    ctx.fillText(feelingText, W / 2, 158)
+    const SHIT_PATHS = [
+      '/images/shit0_small.png',
+      'images/shit0_small.png',
+      '/images/shit0.png',
+      '/pages/share/shit0.png'
+    ]
+    const FALLBACK_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+    // 临时文件 path 可能是 http://usr/xxx，不能加前缀 /，否则变成 /http://... 报 500
+    function drawImagePath(p) {
+      if (!p) return null
+      if (p.startsWith('http://') || p.startsWith('https://') || p.startsWith('wxfile://')) return p
+      return p.startsWith('/') ? p : '/' + p
+    }
+    function tryDraw(shitImagePath, opts) {
+      opts = opts || {}
+      const { totalCount = 0, textA = '', textB = '' } = opts
+      const ctx = wx.createCanvasContext('shareCanvas', that)
+      const record = that.data.record
+      if (!record) return
 
-    const blockX = 35
-    const blockY = 208
-    const blockW = W - 70
-    const blockH = 44
-    ctx.setFillStyle('#f5f0eb')
-    ctx.setStrokeStyle('#e8d5c4')
-    ctx.setLineWidth(1)
-    roundRect(ctx, blockX, blockY, blockW, blockH, 8)
-    ctx.fill()
-    ctx.stroke()
-    ctx.setFillStyle('#666')
-    ctx.setFontSize(14)
-    ctx.fillText(slogan, W / 2, blockY + blockH / 2 + 4)
+      // 背景
+      ctx.setFillStyle('#f8f4f0')
+      ctx.fillRect(0, 0, W, H)
+      ctx.setFillStyle('#c4956a')
+      ctx.fillRect(15, 15, W - 30, H - 30)
+      ctx.setFillStyle('#fff')
+      ctx.setStrokeStyle('#e8d5c4')
+      ctx.setLineWidth(1.5)
+      roundRect(ctx, 20, 20, W - 40, H - 40, 10)
+      ctx.fill()
+      ctx.stroke()
 
-    ctx.draw(false, () => {
-      wx.canvasToTempFilePath(
-        {
-          canvasId: 'shareCanvas',
-          x: 0,
-          y: 0,
-          width: W,
-          height: H,
-          destWidth: W,
-          destHeight: H,
-          fileType: 'png',
-          success: (res) => {
-            this._persistShareImage(res.tempFilePath, slogan)
+      // 标题、日期
+      ctx.setFillStyle('#333')
+      ctx.setFontSize(18)
+      ctx.setTextAlign('center')
+      ctx.fillText('今日拉屎', W / 2, 62)
+      ctx.setFontSize(14)
+      ctx.setFillStyle('#666')
+      ctx.fillText(record.date, W / 2, 98)
+
+      // 屎图
+      const shitSize = 56
+      const shitX = (W - shitSize) / 2
+      const shitY = 168
+      const drawPath = shitImagePath ? drawImagePath(shitImagePath) : null
+      if (drawPath) {
+        ctx.drawImage(drawPath, shitX, shitY, shitSize, shitSize)
+      }
+
+      // 屎图下方：信笺式排版，行距大、字稍大；前三行与后两行之间留白
+      ctx.setFillStyle('#5c5348')
+      ctx.setFontSize(15)
+      const lineH = 28
+      let y = 252
+      const line1 = '今天是我第' + totalCount + '次拉噗噗打卡'
+      ctx.fillText(line1, W / 2, y)
+      y += lineH
+      if (textA) { ctx.fillText(textA, W / 2, y); y += lineH }
+      if (textB) { ctx.fillText(textB, W / 2, y); y += lineH }
+      y += 26
+      ctx.fillText('闺蜜，今天我真的感觉', W / 2, y)
+      y += lineH
+      ctx.fillText((record.feeling || '开心') + '屎了', W / 2, y)
+
+      // 最底部：喜报/闺蜜/祝你 文案，用圆角矩形装饰，拉长贴两边
+      ctx.setFontSize(14)
+      const boxMargin = 28
+      const boxW = W - boxMargin * 2
+      const boxH = 36
+      const boxX = boxMargin
+      const boxY = 458 - boxH / 2 - 4
+      ctx.setFillStyle('#f5f0eb')
+      ctx.setStrokeStyle('#e8d5c4')
+      ctx.setLineWidth(1)
+      roundRect(ctx, boxX, boxY, boxW, boxH, 10)
+      ctx.fill()
+      ctx.stroke()
+      ctx.setFillStyle('#c4956a')
+      ctx.fillText(slogan, W / 2, 458)
+
+      const doDraw = () => {
+        ctx.draw(false, () => {
+          clearTimeout(timeout)
+          wx.canvasToTempFilePath({
+            canvasId: 'shareCanvas',
+            x: 0, y: 0, width: W, height: H, destWidth: W, destHeight: H, fileType: 'png',
+            success: (res) => that._persistShareImage(res.tempFilePath, slogan),
+            fail: (err) => {
+              finishLoading()
+              wx.showToast({ title: '生成失败', icon: 'none' })
+            }
+          }, that)
+        })
+      }
+      if (drawPath) setTimeout(doDraw, 500)
+      else doDraw()
+    }
+    function tryNext(i) {
+      if (i >= SHIT_PATHS.length) {
+        console.warn('[confirm] 所有包内路径都失败，写 base64 到临时文件再画')
+        const fs = wx.getFileSystemManager()
+        const tmpPath = `${wx.env.USER_DATA_PATH}/shit_fallback.png`
+        fs.writeFile({
+          filePath: tmpPath,
+          data: FALLBACK_BASE64,
+          encoding: 'base64',
+          success: () => {
+            wx.getImageInfo({
+              src: tmpPath,
+            success: (r) => tryDraw(r.path, { totalCount, textA, textB }),
+            fail: () => tryDraw(null, { totalCount, textA, textB })
+            })
           },
-          fail: () => {
-            this.setData({ shareLoading: false })
-            wx.showToast({ title: '生成失败', icon: 'none' })
-          }
+          fail: () => tryDraw(null, { totalCount, textA, textB })
+        })
+        return
+      }
+      const src = SHIT_PATHS[i]
+      wx.getImageInfo({
+        src,
+        success: (res) => {
+          tryDraw(res.path, { totalCount, textA, textB })
         },
-        this
-      )
-    })
+        fail: (err) => {
+          tryNext(i + 1)
+        }
+      })
+    }
+    tryNext(0)
   },
 
   _persistShareImage(tempPath, slogan) {

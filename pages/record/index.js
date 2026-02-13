@@ -1,5 +1,5 @@
 // 填写页 - 选择形状、分量后打卡
-const SHAPES = ['正常', '偏硬', '偏软', '稀']
+const SHAPES = ['完美', '偏硬', '偏软', '稀']
 const AMOUNTS = ['少', '中', '多','超级无敌爆炸多']
 const { addRecord, todayStr } = require('../../utils/records')
 
