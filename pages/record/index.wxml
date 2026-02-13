@@ -1,4 +1,5 @@
 <view class="page">
+  <view class="rule-tip">规则：一天可多次打卡，系统会展示当天最后一次，并统计共几次。</view>
   <view class="section">
     <text class="label">形状</text>
     <picker mode="selector" range="{{shapes}}" value="{{shapeIndex}}" bindchange="onShapeChange">
@@ -25,6 +26,6 @@
     </view>
   </view>
   <view class="btn-wrap">
-    <view class="btn" bindtap="onTapSubmit">打卡</view>
+    <view class="btn {{submitting ? 'disabled' : ''}}" bindtap="onTapSubmit">{{submitting ? '提交中...' : '打卡'}}</view>
   </view>
 </view>

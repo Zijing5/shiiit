@@ -16,7 +16,40 @@
 .slogan {
   color: #666;
   font-size: 28rpx;
-  margin-bottom: 80rpx;
+  margin-bottom: 30rpx;
+}
+
+.status-card {
+  width: 100%;
+  max-width: 560rpx;
+  background: #fff;
+  border-radius: 18rpx;
+  padding: 22rpx 24rpx;
+  box-sizing: border-box;
+  margin-bottom: 48rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
+}
+
+.status-title {
+  display: block;
+  font-size: 32rpx;
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+
+.status-sub {
+  display: block;
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.45;
+}
+
+.streak {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #2d8a3e;
 }
 
 .btn-wrap {
@@ -43,4 +76,27 @@
 .btn-rect:active {
   transform: scale(0.98);
   opacity: 0.95;
+}
+
+.sub-wrap {
+  margin-top: 14rpx;
+}
+
+.btn-sub {
+  width: 340rpx;
+  height: 74rpx;
+  border-radius: 37rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  box-shadow: 0 6rpx 18rpx rgba(0,0,0,0.08);
+}
+
+.view-btn {
+  background: linear-gradient(145deg, #88b277, #6f9a5f);
+  color: #fff;
+}
+
+.calendar-btn {
+  background: linear-gradient(145deg, #d7c8b8, #c8b7a5);
+  color: #6a5440;
 }

@@ -70,9 +70,12 @@
 .check {
   position: absolute;
   bottom: 8rpx;
-  font-size: 24rpx;
+  font-size: 20rpx;
   color: #2d8a3e;
   font-weight: bold;
+  background: rgba(45, 138, 62, 0.15);
+  border-radius: 999rpx;
+  padding: 2rpx 10rpx;
 }
 
 .cell.checked .day-num {
@@ -100,4 +103,103 @@
 
 .bottom-btn:active {
   opacity: 0.9;
+}
+
+.rule-tip {
+  display: block;
+  margin-top: 18rpx;
+  color: #8a8a8a;
+  font-size: 24rpx;
+  line-height: 1.5;
+}
+
+.mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 20;
+}
+
+.detail-panel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-height: 72vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  padding: 24rpx;
+  box-sizing: border-box;
+  z-index: 21;
+}
+
+.detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.detail-date {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: bold;
+}
+
+.detail-close {
+  font-size: 26rpx;
+  color: #9a9a9a;
+}
+
+.detail-summary {
+  display: block;
+  margin-top: 10rpx;
+  color: #666;
+  font-size: 26rpx;
+  line-height: 1.45;
+}
+
+.empty {
+  margin-top: 28rpx;
+  color: #999;
+  text-align: center;
+  font-size: 28rpx;
+}
+
+.record-item {
+  margin-top: 20rpx;
+  background: #f8f4f0;
+  border-radius: 14rpx;
+  padding: 18rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.record-info {
+  flex: 1;
+}
+
+.record-line {
+  display: block;
+  font-size: 24rpx;
+  color: #555;
+  line-height: 1.45;
+}
+
+.del-btn {
+  width: 108rpx;
+  height: 58rpx;
+  border-radius: 29rpx;
+  background: #f5d7d7;
+  color: #9d3232;
+  font-size: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }

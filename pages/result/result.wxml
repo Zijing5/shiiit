@@ -11,13 +11,34 @@
   </view>
   <view class="grid">
     <block wx:for="{{cells}}" wx:key="index">
-      <view class="cell {{item.isToday ? 'today' : ''}} {{item.checked ? 'checked' : ''}}">
+      <view class="cell {{item.isToday ? 'today' : ''}} {{item.checked ? 'checked' : ''}}" data-day="{{item.day}}" bindtap="onTapDay">
         <text wx:if="{{item.day}}" class="day-num">{{item.day}}</text>
-        <text wx:if="{{item.day && item.checked}}" class="check">✓</text>
+        <text wx:if="{{item.day && item.checked}}" class="check">{{item.count > 1 ? ('x' + item.count) : '✓'}}</text>
       </view>
     </block>
   </view>
   <view class="bottom-btn-wrap">
     <view class="bottom-btn" bindtap="onShareToday">分享今日拉屎成就</view>
+    <text class="rule-tip">规则：一天可多次打卡，系统按最后一次展示，并统计共几次。</text>
+  </view>
+
+  <view wx:if="{{detailVisible}}" class="mask" bindtap="closeDetail"></view>
+  <view wx:if="{{detailVisible}}" class="detail-panel">
+    <view class="detail-head">
+      <text class="detail-date">{{selectedDate}}</text>
+      <text class="detail-close" bindtap="closeDetail">关闭</text>
+    </view>
+    <text class="detail-summary">{{selectedSummary}}</text>
+    <view wx:if="{{!selectedRecords.length}}" class="empty">暂无记录</view>
+    <block wx:for="{{selectedRecords}}" wx:key="id">
+      <view class="record-item">
+        <view class="record-info">
+          <text class="record-line">时间：{{item.timeText}}</text>
+          <text class="record-line">形状：{{item.shape}}｜分量：{{item.amount}}</text>
+          <text class="record-line">感想：{{item.feeling}}</text>
+        </view>
+        <view class="del-btn" data-id="{{item.id}}" bindtap="onDeleteRecord">删除</view>
+      </view>
+    </block>
   </view>
 </view>

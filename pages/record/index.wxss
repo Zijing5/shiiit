@@ -3,6 +3,13 @@
   padding: 48rpx 40rpx;
 }
 
+.rule-tip {
+  font-size: 24rpx;
+  color: #8a8a8a;
+  margin-bottom: 28rpx;
+  line-height: 1.5;
+}
+
 .section {
   margin-bottom: 48rpx;
 }
@@ -74,4 +81,8 @@
 
 .btn:active {
   opacity: 0.9;
+}
+
+.btn.disabled {
+  opacity: 0.6;
 }

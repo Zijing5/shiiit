@@ -8,6 +8,16 @@ const SLOGANS = [
 const W = 375
 const H = 500
 
+function decodeQueryValue(value) {
+  if (value == null) return ''
+  const str = String(value)
+  try {
+    return decodeURIComponent(str)
+  } catch (e) {
+    return str
+  }
+}
+
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath()
   ctx.arc(x + r, y + r, r, Math.PI, Math.PI * 1.5)
@@ -25,16 +35,21 @@ Page({
   },
 
   onLoad(options) {
-    if (!options.date) {
+    const date = decodeQueryValue(options && options.date)
+    if (!date) {
       wx.showToast({ title: '缺少打卡数据', icon: 'none' })
       return
     }
-    const feeling = (options.feeling && options.feeling.trim()) ? options.feeling.trim() : '开心'
+    const shape = decodeQueryValue(options && options.shape)
+    const amount = decodeQueryValue(options && options.amount)
+    const feelingRaw = decodeQueryValue(options && options.feeling)
+    const feeling = feelingRaw && feelingRaw.trim() ? feelingRaw.trim() : '开心'
+
     this.setData({
       todayRecord: {
-        date: options.date,
-        shape: options.shape || '',
-        amount: options.amount || '',
+        date: date,
+        shape: shape || '',
+        amount: amount || '',
         feeling: feeling
       }
     }, () => {
@@ -44,7 +59,7 @@ Page({
   },
 
   onClose() {
-    wx.redirectTo({ url: '/pages/result/result' })
+    wx.reLaunch({ url: '/pages/result/result' })
   },
 
   onShareAppMessage() {

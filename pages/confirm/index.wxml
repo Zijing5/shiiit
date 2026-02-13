@@ -1,0 +1,47 @@
+<view class="page">
+  <view class="card" wx:if="{{record}}">
+    <text class="title">打卡成功</text>
+    <text class="rule">规则：一天可多次打卡，系统展示当天最后一次，并统计共几次。</text>
+    <view class="row">
+      <text class="label">日期</text>
+      <text class="value">{{record.date}}</text>
+    </view>
+    <view class="row">
+      <text class="label">形状</text>
+      <text class="value">{{record.shape}}</text>
+    </view>
+    <view class="row">
+      <text class="label">分量</text>
+      <text class="value">{{record.amount}}</text>
+    </view>
+    <view class="row">
+      <text class="label">感想</text>
+      <text class="value">{{record.feeling}} 屎了</text>
+    </view>
+    <view class="actions">
+      <view class="btn secondary" bindtap="onGoCalendar">回日历</view>
+      <view class="btn primary" bindtap="onGoShare">去分享</view>
+    </view>
+  </view>
+
+  <view wx:if="{{sharePopupVisible}}" class="mask" bindtap="closeSharePopup"></view>
+  <view wx:if="{{sharePopupVisible}}" class="share-popup">
+    <text class="popup-title">分享打卡图片</text>
+    <text class="popup-sub">弹窗分享，不跳转页面</text>
+
+    <view wx:if="{{shareLoading}}" class="loading">图片生成中...</view>
+    <image
+      wx:if="{{!shareLoading && shareImageReady}}"
+      class="preview"
+      src="{{shareImagePath}}"
+      mode="widthFix"
+    />
+
+    <view class="popup-actions">
+      <view class="pop-btn secondary" bindtap="saveToAlbum">保存图片</view>
+      <view class="pop-btn primary" bindtap="onShareImage">分享给朋友</view>
+    </view>
+  </view>
+
+  <canvas canvas-id="shareCanvas" class="canvas-off" style="width: 375px; height: 500px;" />
+</view>

@@ -2,6 +2,7 @@
   "pages": [
     "pages/index/index",
     "pages/record/index",
+    "pages/confirm/index",
     "pages/share/index",
     "pages/result/result"
   ],

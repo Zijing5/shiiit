@@ -1,7 +1,18 @@
 <view class="container">
   <image class="shit-icon" src="/shit0.png" mode="aspectFit" />
   <text class="slogan">屎了吗您？</text>
+  <view class="status-card">
+    <text class="status-title">{{todayStatus}}</text>
+    <text class="status-sub">{{todaySubStatus}}</text>
+    <text class="streak">连续打卡：{{streakCount}} 天</text>
+  </view>
   <view class="btn-wrap">
-    <view class="btn-rect" bindtap="onTapCheckIn">今日打卡</view>
+    <view class="btn-rect" bindtap="onTapCheckIn">{{hasTodayRecord ? '重新打卡' : '今日打卡'}}</view>
+  </view>
+  <view class="btn-wrap sub-wrap">
+    <view class="btn-rect btn-sub view-btn" bindtap="onTapViewCheckIn">查看今日打卡</view>
+  </view>
+  <view class="btn-wrap sub-wrap">
+    <view class="btn-rect btn-sub calendar-btn" bindtap="onTapCalendar">查看打卡日历</view>
   </view>
 </view>
