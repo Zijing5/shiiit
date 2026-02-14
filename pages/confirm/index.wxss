@@ -122,11 +122,19 @@
   padding: 40rpx 0;
 }
 
-.preview {
+.preview-wrap {
   width: 100%;
   margin-top: 18rpx;
+  overflow: hidden;
   border-radius: 12rpx;
   background: #f7f7f7;
+}
+
+.preview {
+  width: 100%;
+  max-width: 100%;
+  display: block;
+  border-radius: 12rpx;
   max-height: 58vh;
 }
 
@@ -157,11 +165,16 @@
   color: #6f5a46;
 }
 
-.canvas-off {
+/* 画布移出弹层，放到视口外，避免 P50 等机型仍把 canvas 画出来造成“今日拉屎”叠两层、上层错位 */
+.canvas-offscreen {
   position: fixed;
-  left: 0;
+  left: -9999px;
   top: 0;
   z-index: -1;
-  opacity: 0;
   pointer-events: none;
+  overflow: hidden;
+}
+
+.canvas-size {
+  display: block;
 }

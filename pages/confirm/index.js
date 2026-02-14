@@ -62,10 +62,20 @@ Page({
     shareLoading: false,
     shareImageReady: false,
     shareImagePath: '',
-    slogan: ''
+    slogan: '',
+    canvasW: 375,
+    canvasH: 500
   },
 
   onLoad(options) {
+    // 以「分享打卡图片」弹层内容区宽度为基准，保证生成的分享图不越出弹层
+    const sys = wx.getSystemInfoSync()
+    const w = sys.windowWidth || 375
+    const contentW = Math.floor((750 - 64 - 48) / 750 * w) // 弹层 left32+right32 + padding24*2
+    const canvasW = Math.max(280, Math.min(contentW, 375))
+    const canvasH = Math.round((500 / 375) * canvasW)
+    this.setData({ canvasW, canvasH })
+
     const id = decodeQueryValue(options && options.id)
     const date = decodeQueryValue(options && options.date)
     const shape = decodeQueryValue(options && options.shape)
@@ -169,6 +179,10 @@ Page({
       const record = that.data.record
       if (!record) return
 
+      const cw = that.data.canvasW || W
+      const ch = that.data.canvasH || H
+      ctx.scale(cw / W, ch / H)
+
       const isConstipation = record.shape === '便秘'
       const drawPath = shitImagePath ? drawImagePath(shitImagePath) : null
 
@@ -256,9 +270,12 @@ Page({
       const doDraw = () => {
         ctx.draw(false, () => {
           clearTimeout(timeout)
+          const pr = Math.min(wx.getSystemInfoSync().pixelRatio || 2, 3)
+          const outW = cw * pr
+          const outH = ch * pr
           wx.canvasToTempFilePath({
             canvasId: 'shareCanvas',
-            x: 0, y: 0, width: W, height: H, destWidth: W, destHeight: H, fileType: 'png',
+            x: 0, y: 0, width: cw, height: ch, destWidth: outW, destHeight: outH, fileType: 'png',
             success: (res) => that._persistShareImage(res.tempFilePath, slogan),
             fail: (err) => {
               finishLoading()

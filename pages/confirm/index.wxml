@@ -28,21 +28,18 @@
     <text class="popup-title">分享打卡图片</text>
 
     <view wx:if="{{shareLoading}}" class="loading">图片生成中...</view>
-    <image
-      wx:if="{{!shareLoading && shareImageReady}}"
-      class="preview"
-      src="{{shareImagePath}}"
-      mode="widthFix"
-    />
+    <view wx:if="{{!shareLoading && shareImageReady}}" class="preview-wrap">
+      <image class="preview" src="{{shareImagePath}}" mode="widthFix" />
+    </view>
 
     <view class="popup-actions">
       <view class="pop-btn secondary" bindtap="saveToAlbum">保存图片</view>
       <view class="pop-btn primary" bindtap="onShareImage">分享给朋友</view>
     </view>
-    <!-- canvas 放在弹层内，打开弹层时才会渲染，旧版 canvas 的 draw 回调才可能触发 -->
-    <canvas canvas-id="shareCanvas" class="canvas-off" style="width: 375px; height: 500px;" />
+  </view>
+
+  <!-- canvas 移出弹层并放到屏幕外，避免部分机型（如 P50）仍绘制出画布导致“今日拉屎”出现两次、上层错位 -->
+  <view wx:if="{{sharePopupVisible}}" class="canvas-offscreen">
+    <canvas canvas-id="shareCanvas" class="canvas-size" style="width: {{canvasW}}px; height: {{canvasH}}px;" />
   </view>
 </view>
-
-
-形状：['']
