@@ -84,7 +84,7 @@
 }
 
 .btn-constipation {
-  width: 160rpx;
+  width: 240rpx;
   background: linear-gradient(145deg, #d64545, #c03939);
   font-size: 30rpx;
 }

@@ -35,12 +35,12 @@ Page({
     const date = todayStr()
     this.setData({ submitting: true })
     try {
-      const record = addRecord({ date, shape: '便秘', amount: '', feeling: '烦' })
+      const record = addRecord({ date, shape: '拉不出来', amount: '', feeling: '烦' })
       wx.showToast({ title: '已记录', icon: 'success' })
       setTimeout(() => {
         const q =
           'id=' + encodeURIComponent(record.id || '') +
-          '&shape=' + encodeURIComponent('便秘') +
+          '&shape=' + encodeURIComponent('拉不出来') +
           '&date=' + encodeURIComponent(date)
         wx.redirectTo({
           url: '/pages/confirm/index?' + q,

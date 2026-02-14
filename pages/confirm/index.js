@@ -155,7 +155,7 @@ Page({
       }
     }, 8000)
 
-    const isConstipation = record.shape === '便秘'
+    const isConstipation = record.shape === '便秘' || record.shape === '拉不出来'
     const list = isConstipation ? ['shit8'] : (SHAPE_IMAGES[record.shape] || SHAPE_IMAGES['完美'])
     const chosen = list[Math.floor(Math.random() * list.length)]
     const cdnUrl = getShitImageUrl(chosen)
@@ -195,7 +195,7 @@ Page({
       const ch = that.data.canvasH || H
       ctx.scale(cw / W, ch / H)
 
-      const isConstipation = record.shape === '便秘'
+      const isConstipation = record.shape === '便秘' || record.shape === '拉不出来'
       const drawPath = shitImagePath ? drawImagePath(shitImagePath) : null
 
       // 背景

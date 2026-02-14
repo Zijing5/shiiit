@@ -63,7 +63,7 @@ Page({
       const ds = dateStr(year, month, d)
       const oneDay = stats[ds]
       const dayRecords = getRecordsByDate(records, ds)
-      const hasConstipation = dayRecords.some((r) => r.shape === '便秘')
+      const hasConstipation = dayRecords.some((r) => r.shape === '便秘' || r.shape === '拉不出来')
       return {
         day: d,
         checked: !!oneDay,

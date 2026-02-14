@@ -26,7 +26,7 @@
     </view>
   </view>
   <view class="btn-wrap">
-    <view class="btn btn-constipation {{submitting ? 'disabled' : ''}}" bindtap="onTapConstipation">便秘</view>
+    <view class="btn btn-constipation {{submitting ? 'disabled' : ''}}" bindtap="onTapConstipation">拉不出来</view>
     <view class="btn {{submitting ? 'disabled' : ''}}" bindtap="onTapSubmit">{{submitting ? '提交中...' : '打卡'}}</view>
   </view>
 </view>
