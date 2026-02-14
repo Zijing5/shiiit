@@ -3,7 +3,7 @@ const {
   getRecordById,
   updateRecordById
 } = require('../../utils/records')
-const { getShitImageUrl } = require('../../config/images')
+const { getShitImageUrl, getMiniprogramQrUrl, MINIPROGRAM_QR_PATH } = require('../../config/images')
 
 const SLOGANS = [
   '闺蜜，今天你拉屎了吗？',
@@ -166,6 +166,18 @@ Page({
       '/' + chosen + '.png'
     ].filter(Boolean)
     const FALLBACK_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
+    let qrImagePath = null
+    const qrUrl = getMiniprogramQrUrl()
+    if (qrUrl) {
+      wx.downloadFile({
+        url: qrUrl,
+        success: res => { if (res.tempFilePath) qrImagePath = res.tempFilePath },
+        fail: () => {}
+      })
+    }
+    if (MINIPROGRAM_QR_PATH) {
+      wx.getImageInfo({ src: MINIPROGRAM_QR_PATH, success: r => { if (!qrImagePath) qrImagePath = r.path }, fail: () => {} })
+    }
     // 临时文件 path 可能是 http://usr/xxx，不能加前缀 /，否则变成 /http://... 报 500
     function drawImagePath(p) {
       if (!p) return null
@@ -198,49 +210,39 @@ Page({
       ctx.fill()
       ctx.stroke()
 
-      if (isConstipation) {
-        // 便秘分享图：标题+日期 + 大 shit8 + 诡秘，我便秘了！！！
-        ctx.setFillStyle('#333')
-        ctx.setFontSize(18)
-        ctx.setTextAlign('center')
-        ctx.fillText('今日拉屎', W / 2, 62)
-        ctx.setFontSize(14)
-        ctx.setFillStyle('#666')
-        ctx.fillText(record.date, W / 2, 98)
+      // 标题「今日拉屎」：放大、深棕色（可爱感靠字号与配色）
+      const titleBrown = '#3d352b'
+      ctx.setFillStyle(titleBrown)
+      ctx.setFontSize(26)
+      ctx.setTextAlign('center')
+      ctx.fillText('今日拉屎', W / 2, 52)
+      ctx.setFontSize(14)
+      ctx.setFillStyle('#666')
+      ctx.fillText(record.date, W / 2, 82)
 
+      if (isConstipation) {
         const bigSize = 260
         const bigX = (W - bigSize) / 2
-        const bigY = 120
+        const bigY = 98
         if (drawPath) {
           ctx.drawImage(drawPath, bigX, bigY, bigSize, bigSize)
         }
         ctx.setFillStyle('#5c5348')
         ctx.setFontSize(20)
         ctx.setTextAlign('center')
-        ctx.fillText('诡秘，我便秘了！！！', W / 2, 420)
+        ctx.fillText('诡秘，我便秘了！！！', W / 2, 378)
       } else {
-        // 标题、日期
-        ctx.setFillStyle('#333')
-        ctx.setFontSize(18)
-        ctx.setTextAlign('center')
-        ctx.fillText('今日拉屎', W / 2, 62)
-        ctx.setFontSize(14)
-        ctx.setFillStyle('#666')
-        ctx.fillText(record.date, W / 2, 98)
-
-        // 屎图
         const shitSize = 56
         const shitX = (W - shitSize) / 2
-        const shitY = 168
+        const shitY = 112
         if (drawPath) {
           ctx.drawImage(drawPath, shitX, shitY, shitSize, shitSize)
         }
-
-        // 屎图下方：信笺式排版
         ctx.setFillStyle('#5c5348')
         ctx.setFontSize(15)
         const lineH = 28
-        let y = 252
+        let y = 198
+        ctx.setTextAlign('center')
         ctx.fillText('今天是我第' + totalCount + '次拉噗噗打卡', W / 2, y)
         y += lineH
         if (textA) { ctx.fillText(textA, W / 2, y); y += lineH }
@@ -249,22 +251,39 @@ Page({
         ctx.fillText('闺蜜，今天我真的感觉', W / 2, y)
         y += lineH
         ctx.fillText((record.feeling || '开心') + '屎了', W / 2, y)
+      }
 
-        // 最底部：喜报/闺蜜/祝你 文案，圆角矩形
-        ctx.setFontSize(14)
-        const boxMargin = 28
-        const boxW = W - boxMargin * 2
-        const boxH = 36
-        const boxX = boxMargin
-        const boxY = 458 - boxH / 2 - 4
-        ctx.setFillStyle('#f5f0eb')
-        ctx.setStrokeStyle('#e8d5c4')
-        ctx.setLineWidth(1)
-        roundRect(ctx, boxX, boxY, boxW, boxH, 10)
-        ctx.fill()
-        ctx.stroke()
-        ctx.setFillStyle('#c4956a')
-        ctx.fillText(slogan, W / 2, 458)
+      // 底部 slogan 区：加高、标语左上、右侧固定位置小程序码、左下角 @拉噗噗lapupu，方框上移、底部留白
+      const boxMargin = 28
+      const boxW = W - boxMargin * 2
+      const boxH = 80
+      const boxX = boxMargin
+      const bottomGap = 28
+      const boxY = H - bottomGap - boxH
+      const boxPad = 14
+      const qrSize = 56
+      const qrX = boxX + boxW - boxPad - qrSize
+      const qrY = boxY + (boxH - qrSize) / 2
+
+      ctx.setFillStyle('#f5f0eb')
+      ctx.setStrokeStyle('#e8d5c4')
+      ctx.setLineWidth(1)
+      roundRect(ctx, boxX, boxY, boxW, boxH, 10)
+      ctx.fill()
+      ctx.stroke()
+
+      ctx.setTextAlign('left')
+      ctx.setFillStyle('#5c5348')
+      ctx.setFontSize(17)
+      const sloganY = boxY + 28
+      ctx.fillText(slogan, boxX + boxPad, sloganY)
+      ctx.setFontSize(12)
+      ctx.setFillStyle('#8a7a6a')
+      ctx.fillText('@拉噗噗lapupu', boxX + boxPad, sloganY + 22)
+
+      if (qrImagePath) {
+        const qrPath = drawImagePath(qrImagePath) || qrImagePath
+        ctx.drawImage(qrPath, qrX, qrY, qrSize, qrSize)
       }
 
       const doDraw = () => {
