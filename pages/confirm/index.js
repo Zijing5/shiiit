@@ -1,6 +1,7 @@
 const {
   loadRecords,
   getRecordById,
+  getRecordsByDate,
   updateRecordById
 } = require('../../utils/records')
 const { getShitImageUrl, getMiniprogramQrUrl, MINIPROGRAM_QR_PATH } = require('../../config/images')
@@ -175,7 +176,8 @@ Page({
     this.setData({ shareLoading: true, shareImageReady: false, slogan })
 
     const all = loadRecords()
-    const totalCount = all.length
+    const dayRecords = getRecordsByDate(all, record.date)
+    const totalCount = dayRecords.length
     const textA = SHAPE_TEXTS[record.shape] || ''
     const textB = AMOUNT_TEXTS[record.amount] || ''
 
