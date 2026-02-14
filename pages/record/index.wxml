@@ -19,6 +19,7 @@
         placeholder="开心/爽/困/累/饿/烦"
         placeholder-class="feeling-placeholder"
         value="{{feeling}}"
+        maxlength="12"
         bindinput="onFeelingInput"
       />
       <text class="feeling-suffix">屎了</text>

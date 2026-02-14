@@ -16,7 +16,8 @@ Page({
   },
 
   onFeelingInput(e) {
-    this.setData({ feeling: e.detail.value })
+    const v = (e.detail.value || '').slice(0, 12)
+    this.setData({ feeling: v })
   },
 
   onShapeChange(e) {
