@@ -8,9 +8,18 @@ const {
 } = require('../../utils/records')
 const { getShitImageUrl } = require('../../config/images')
 
+// 首页角色 icon：A 集合默认，B 集合为当日最后一次是「拉稀」或「拉不出来」时使用
+const ICON_SET_A = ['shit0_0']
+const ICON_SET_B = ['shit1', 'shit8']
+
+function pickIconUrl(set) {
+  const name = set[Math.floor(Math.random() * set.length)]
+  return getShitImageUrl(name) || '/images/' + name + '.png'
+}
+
 Page({
   data: {
-    shitIconUrl: getShitImageUrl('shit0') || '/images/shit0.png',
+    shitIconUrl: pickIconUrl(ICON_SET_A),
     todayStatus: '今天还没打卡',
     todaySubStatus: '去完成一次打卡吧',
     streakCount: 0,
@@ -74,12 +83,17 @@ Page({
         (last.amount || '未填')
     }
 
+    const useSetB = latestTodayRecord &&
+      (latestTodayRecord.shape === '稀' || latestTodayRecord.shape === '拉不出来' || latestTodayRecord.shape === '便秘')
+    const shitIconUrl = pickIconUrl(useSetB ? ICON_SET_B : ICON_SET_A)
+
     this.setData({
       todayStatus,
       todaySubStatus,
       streakCount: getStreakEndingToday(records),
       hasTodayRecord: !!latestTodayRecord,
-      latestTodayRecord: latestTodayRecord || null
+      latestTodayRecord: latestTodayRecord || null,
+      shitIconUrl
     })
   }
 })

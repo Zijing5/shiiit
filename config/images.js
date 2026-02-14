@@ -7,7 +7,7 @@
  */
 
 // 填 CDN 基础地址后，优先从网络拉图，不占包体积。留空则用包内图
-const IMAGE_CDN_BASE = 'https://data-1404699461.cos.ap-shanghai.myqcloud.com/lapupu/test/'
+const IMAGE_CDN_BASE = 'https://data-1404699461.cos.ap-shanghai.myqcloud.com/lapupu/test0/'
 
 /*
  * 腾讯云 COS 操作步骤（小程序用腾讯云较方便，同系、同账号）：

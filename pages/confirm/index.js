@@ -27,11 +27,14 @@ const AMOUNT_TEXTS = {
 
 // 形状 -> 屎图候选列表（从对应列表随机选一张），图片在主目录或 images/
 const SHAPE_IMAGES = {
-  '完美': ['shit13', 'shit1', 'shit5', 'shit6'],
-  '偏硬': ['shit14', 'shit2', 'shit9', 'shit11'],
-  '偏软': ['shit14', 'shit2', 'shit9', 'shit11'],
-  '稀': ['shit3', 'shit4', 'shit12', 'shit9']
+  '完美': ['shit4', 'shit5', 'shit6', 'shit12'],
+  '偏硬': ['shit11', 'shit10', 'shit3', 'shit16','shit2','shit8','shit9'],
+  '偏软': ['shit13', 'shit11', 'shit10', 'shit9','shit3','shit8','shit9'],
+  '稀': ['shit16', 'shit14', 'shit8', 'shit7','shit2','shit1','shit1','shit2']
 }
+
+// 「拉不出来」候选图列表（从中随机选一张）
+const CONSTIPATION_IMAGES = ['shit1', 'shit2','shit7','shit8','shit16']
 
 const W = 375
 const H = 500
@@ -107,7 +110,43 @@ Page({
 
     this.setData({ record }, () => {
       if (openShare) this.onGoShare()
+      else this._preloadShareImages(record)
     })
+    if (openShare) this._preloadShareImages(record)
+  },
+
+  _preloadShareImages(record) {
+    if (!record) return
+    const isConstipation = record.shape === '便秘' || record.shape === '拉不出来'
+    const list = isConstipation ? CONSTIPATION_IMAGES : (SHAPE_IMAGES[record.shape] || SHAPE_IMAGES['完美'])
+    const firstChosen = list[0]
+    const url = getShitImageUrl(firstChosen)
+    if (url) {
+      wx.downloadFile({
+        url,
+        success: (res) => {
+          if (res.statusCode === 200 && res.tempFilePath) {
+            this._preloadedShitPath = res.tempFilePath
+            this._preloadedChosen = firstChosen
+          }
+        },
+        fail: () => {}
+      })
+    }
+    const qrUrl = getMiniprogramQrUrl()
+    if (qrUrl) {
+      wx.downloadFile({
+        url: qrUrl,
+        success: (res) => { if (res.tempFilePath) this._preloadedQrPath = res.tempFilePath },
+        fail: () => {}
+      })
+    } else if (MINIPROGRAM_QR_PATH) {
+      wx.getImageInfo({
+        src: MINIPROGRAM_QR_PATH,
+        success: (r) => { this._preloadedQrPath = r.path },
+        fail: () => {}
+      })
+    }
   },
 
   onGoShare() {
@@ -156,7 +195,7 @@ Page({
     }, 8000)
 
     const isConstipation = record.shape === '便秘' || record.shape === '拉不出来'
-    const list = isConstipation ? ['shit8'] : (SHAPE_IMAGES[record.shape] || SHAPE_IMAGES['完美'])
+    const list = isConstipation ? CONSTIPATION_IMAGES : (SHAPE_IMAGES[record.shape] || SHAPE_IMAGES['完美'])
     const chosen = list[Math.floor(Math.random() * list.length)]
     const cdnUrl = getShitImageUrl(chosen)
     const SHIT_PATHS = [
@@ -165,18 +204,22 @@ Page({
       'images/' + chosen + '.png',
       '/' + chosen + '.png'
     ].filter(Boolean)
+    const preloaded = that._preloadedShitPath && that._preloadedChosen === chosen ? that._preloadedShitPath : null
+    if (preloaded) SHIT_PATHS.unshift(preloaded)
     const FALLBACK_BASE64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='
-    let qrImagePath = null
-    const qrUrl = getMiniprogramQrUrl()
-    if (qrUrl) {
-      wx.downloadFile({
-        url: qrUrl,
-        success: res => { if (res.tempFilePath) qrImagePath = res.tempFilePath },
-        fail: () => {}
-      })
-    }
-    if (MINIPROGRAM_QR_PATH) {
-      wx.getImageInfo({ src: MINIPROGRAM_QR_PATH, success: r => { if (!qrImagePath) qrImagePath = r.path }, fail: () => {} })
+    let qrImagePath = that._preloadedQrPath || null
+    if (!qrImagePath) {
+      const qrUrl = getMiniprogramQrUrl()
+      if (qrUrl) {
+        wx.downloadFile({
+          url: qrUrl,
+          success: res => { if (res.tempFilePath) qrImagePath = res.tempFilePath },
+          fail: () => {}
+        })
+      }
+      if (MINIPROGRAM_QR_PATH) {
+        wx.getImageInfo({ src: MINIPROGRAM_QR_PATH, success: r => { if (!qrImagePath) qrImagePath = r.path }, fail: () => {} })
+      }
     }
     // 临时文件 path 可能是 http://usr/xxx，不能加前缀 /，否则变成 /http://... 报 500
     function drawImagePath(p) {
@@ -303,7 +346,7 @@ Page({
           }, that)
         })
       }
-      if (drawPath) setTimeout(doDraw, 500)
+      if (drawPath) setTimeout(doDraw, 150)
       else doDraw()
     }
     function tryNext(i) {
