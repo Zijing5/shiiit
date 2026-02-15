@@ -1,13 +1,13 @@
 {
-  "pages": [
-    "pages/index/index",
-    "pages/record/index",
-    "pages/confirm/index",
-    "pages/result/result"
-  ],
+  "pages": ["pages/index/index", "pages/record/index", "pages/confirm/index", "pages/result/result"],
   "window": {
     "navigationBarTitleText": "拉屎打卡",
     "navigationBarBackgroundColor": "#f8f4f0",
     "navigationBarTextStyle": "black"
+  },
+  "permission": {
+    "scope.writePhotosAlbum": {
+      "desc": "用于将打卡分享图保存到你的相册"
+    }
   }
 }

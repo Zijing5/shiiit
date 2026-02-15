@@ -425,6 +425,7 @@ Page({
           shareLoading: false,
           shareImageReady: true,
           shareImagePath: savedPath,
+          shareImageTempPath: tempPath,
           record: updated || Object.assign({}, record, { shareImagePath: savedPath, shareSlogan: slogan }),
           slogan
         })
@@ -438,6 +439,7 @@ Page({
           shareLoading: false,
           shareImageReady: true,
           shareImagePath: tempPath,
+          shareImageTempPath: tempPath,
           record: updated || Object.assign({}, record, { shareImagePath: tempPath, shareSlogan: slogan }),
           slogan
         })
@@ -473,31 +475,37 @@ Page({
   },
 
   saveToAlbum() {
-    const { shareImagePath, shareImageReady } = this.data
+    const { shareImagePath, shareImageReady, shareImageTempPath } = this.data
     if (!shareImageReady || !shareImagePath) {
       wx.showToast({ title: '图片生成中请稍候', icon: 'none' })
       return
     }
-    wx.saveImageToPhotosAlbum({
-      filePath: shareImagePath,
-      success() {
-        wx.showToast({ title: '已保存到相册', icon: 'success' })
-      },
-      fail(err) {
-        if (err.errMsg && err.errMsg.indexOf('auth deny') !== -1) {
-          wx.showModal({
-            title: '提示',
-            content: '需要您授权保存图片到相册',
-            confirmText: '去设置',
-            success(res) {
-              if (res.confirm) wx.openSetting()
-            }
-          })
-        } else {
-          wx.showToast({ title: '保存失败', icon: 'none' })
+    const trySave = (path) => {
+      wx.saveImageToPhotosAlbum({
+        filePath: path,
+        success() {
+          wx.showToast({ title: '已保存到相册', icon: 'success' })
+        },
+        fail(err) {
+          const msg = err.errMsg || ''
+          if (msg.indexOf('auth deny') !== -1 || msg.indexOf('authorize') !== -1) {
+            wx.showModal({
+              title: '需要相册权限',
+              content: '请点击「去设置」打开相册权限，才能保存图片。',
+              confirmText: '去设置',
+              success(res) {
+                if (res.confirm) wx.openSetting()
+              }
+            })
+          } else if (shareImageTempPath && path !== shareImageTempPath) {
+            trySave(shareImageTempPath)
+          } else {
+            wx.showToast({ title: '保存失败', icon: 'none' })
+          }
         }
-      }
-    })
+      })
+    }
+    trySave(shareImagePath)
   },
 
   onGoCalendar() {
