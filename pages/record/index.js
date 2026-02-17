@@ -89,5 +89,9 @@ Page({
       this.setData({ submitting: false })
       wx.showToast({ title: '打卡失败，请重试', icon: 'none' })
     }
+  },
+
+  onShareAppMessage() {
+    return { title: '拉屎打卡', path: '/pages/record/index' }
   }
 })

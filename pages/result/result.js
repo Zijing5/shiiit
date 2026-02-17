@@ -180,6 +180,10 @@ Page({
       (record.feeling ? '&feeling=' + encodeURIComponent(record.feeling) : '') +
       '&openShare=1'
     wx.navigateTo({ url: '/pages/confirm/index?' + q })
+  },
+
+  onShareAppMessage() {
+    return { title: '拉屎打卡 · 打卡日历', path: '/pages/result/result' }
   }
 })
 

@@ -4,19 +4,19 @@ const {
   getRecordsByDate,
   updateRecordById
 } = require('../../utils/records')
-const { getShitImageUrl, getMiniprogramQrUrl, MINIPROGRAM_QR_PATH } = require('../../config/images')
+const { getShitImageUrl, getMiniprogramQrUrl, MINIPROGRAM_QR_PATH, IMAGE_CDN_BASE } = require('../../config/images')
 
 const SLOGANS = [
   '闺蜜，今天你拉屎了吗？',
-  '祝你大便永远通畅！'
+  '祝您大便永远通畅！'
 ]
 
 // 形状 -> 匹配文案 a
 const SHAPE_TEXTS = {
-  '完美': '我拉出了完美的便便',
-  '偏硬': '我拉出了硬硬的便便',
-  '偏软': '我拉出了软软的便便',
-  '稀': '我拉稀了...'
+  '完美': '拉出了完美的便便',
+  '偏硬': '拉出了硬硬的便便',
+  '偏软': '拉出了软软的便便',
+  '稀': '拉稀了...'
 }
 // 份量 -> 匹配文案 b
 const AMOUNT_TEXTS = {
@@ -148,6 +148,17 @@ Page({
         fail: () => {}
       })
     }
+    // 预加载标题文字图片
+    if (IMAGE_CDN_BASE) {
+      var titleUrl = IMAGE_CDN_BASE.replace(/\/?$/, '/') + 'font3.png'
+      wx.downloadFile({
+        url: titleUrl,
+        success: (res) => {
+          if (res.statusCode === 200 && res.tempFilePath) this._preloadedTitlePath = res.tempFilePath
+        },
+        fail: () => {}
+      })
+    }
   },
 
   onGoShare() {
@@ -246,36 +257,83 @@ Page({
       // 背景
       ctx.setFillStyle('#f8f4f0')
       ctx.fillRect(0, 0, W, H)
-      ctx.setFillStyle('#c4956a')
-      ctx.fillRect(15, 15, W - 30, H - 30)
+
+      // 厕纸形状卡片：顶部卷纸弧度 + 底部锯齿撕裂边
+      const cardX = 22
+      const cardY = 25
+      const cardW = W - 22*2
+      const cardH = H - 50
+      const curlH = 14
+      const zigzagH = 8
+      const zigzagCount = Math.round(cardW / 17)
+      const toothW = cardW / zigzagCount
+
+      ctx.beginPath()
+      // 顶部：卷纸弧线
+      ctx.moveTo(cardX, cardY)
+      ctx.quadraticCurveTo(cardX + cardW / 2, cardY - curlH, cardX + cardW, cardY)
+      // 右侧
+      ctx.lineTo(cardX + cardW, cardY + cardH)
+      // 底部：锯齿撕裂边
+      for (var i = 0; i < zigzagCount; i++) {
+        var bx = cardX + cardW - i * toothW
+        ctx.lineTo(bx - toothW / 2, cardY + cardH - zigzagH)
+        ctx.lineTo(bx - toothW, cardY + cardH)
+      }
+      // 左侧回到顶部
+      ctx.closePath()
+
       ctx.setFillStyle('#fff')
-      ctx.setStrokeStyle('#e8d5c4')
-      ctx.setLineWidth(1.5)
-      roundRect(ctx, 20, 20, W - 40, H - 40, 10)
+      ctx.setStrokeStyle('#c4956a')
+      ctx.setLineWidth(2)
       ctx.fill()
       ctx.stroke()
 
-      // 标题「今日拉屎」：放大、深棕色（可爱感靠字号与配色）
-      const titleBrown = '#3d352b'
-      ctx.setFillStyle(titleBrown)
-      ctx.setFontSize(26)
-      ctx.setTextAlign('center')
-      ctx.fillText('今日拉屎', W / 2, 52)
+      // 顶部卷纸弧度下方阴影（增加立体感）
+      ctx.beginPath()
+      ctx.moveTo(cardX + 8, cardY + 4)
+      ctx.quadraticCurveTo(cardX + cardW / 2, cardY + 10, cardX + cardW - 8, cardY + 4)
+      ctx.setStrokeStyle('rgba(180, 150, 120, 0.15)')
+      ctx.setLineWidth(1.5)
+      ctx.stroke()
+
+      // 标题「今日噗噗」：使用文字图片（优先 CDN，兜底本地）
+      const titleImgW = 180
+      const titleImgH = 180
+      const titlePath = that._preloadedTitlePath || '/images/font3.png'
+      ctx.drawImage(titlePath, (W - titleImgW) / 2, -56, titleImgW, titleImgH)
+
+      // 日期 + 两侧装饰虚线
       ctx.setFontSize(14)
-      ctx.setFillStyle('#666')
+      ctx.setFillStyle('#999')
+      ctx.setTextAlign('center')
       ctx.fillText(record.date, W / 2, 82)
 
+      const dashY = 77
+      ctx.setStrokeStyle('#c4956a')
+      ctx.setLineWidth(1)
+      ctx.setLineDash([4, 3], 0)
+      ctx.beginPath()
+      ctx.moveTo(80, dashY)
+      ctx.lineTo(138, dashY)
+      ctx.stroke()
+      ctx.beginPath()
+      ctx.moveTo(237, dashY)
+      ctx.lineTo(295, dashY)
+      ctx.stroke()
+      ctx.setLineDash([], 0)
+
       if (isConstipation) {
-        const bigSize = 260
+        const bigSize = Math.round(260 * 0.79)
         const bigX = (W - bigSize) / 2
         const bigY = 98
         if (drawPath) {
           ctx.drawImage(drawPath, bigX, bigY, bigSize, bigSize)
         }
         ctx.setFillStyle('#5c5348')
-        ctx.setFontSize(20)
+        ctx.font = 'bold 20px "STSong", "Songti SC", serif'
         ctx.setTextAlign('center')
-        ctx.fillText('诡秘，我便秘了！！！', W / 2, 378)
+        ctx.fillText('我便秘了...', W / 2, bigY + bigSize + 30)
       } else {
         const shitSize = 56
         const shitX = (W - shitSize) / 2
@@ -284,29 +342,36 @@ Page({
           ctx.drawImage(drawPath, shitX, shitY, shitSize, shitSize)
         }
         ctx.setFillStyle('#5c5348')
-        ctx.setFontSize(15)
         const lineH = 28
         let y = 198
         ctx.setTextAlign('center')
-        ctx.fillText('今天是我第' + totalCount + '次拉噗噗打卡', W / 2, y)
+
+        // 我在xx时xx分 / 拉出了xx的便便 / 份量（宋体加粗）
+        ctx.font = 'bold 15px "STSong", "Songti SC", serif'
+        var cDate = record.createdAt ? new Date(record.createdAt) : new Date()
+        var hh = cDate.getHours()
+        var mm = cDate.getMinutes()
+        ctx.fillText('我在' + hh + '时' + (mm < 10 ? '0' + mm : mm) + '分', W / 2, y)
         y += lineH
         if (textA) { ctx.fillText(textA, W / 2, y); y += lineH }
         if (textB) { ctx.fillText(textB, W / 2, y); y += lineH }
         y += 26
+        ctx.font = 'italic bold 15px "STSong", "Songti SC", serif'
         ctx.fillText('闺蜜，今天我真的感觉', W / 2, y)
         y += lineH
         ctx.fillText((record.feeling || '开心') + '屎了', W / 2, y)
+        ctx.font = 'normal 15px "STSong", "Songti SC", serif'
       }
 
       // 底部 slogan 区：加高、标语左上、右侧固定位置小程序码、左下角 @拉噗噗lapupu，方框上移、底部留白
-      const boxMargin = 28
+      const boxMargin = 38
       const boxW = W - boxMargin * 2
       const boxH = 80
       const boxX = boxMargin
-      const bottomGap = 28
+      const bottomGap = 44
       const boxY = H - bottomGap - boxH
       const boxPad = 14
-      const qrSize = 56
+      const qrSize = 66
       const qrX = boxX + boxW - boxPad - qrSize
       const qrY = boxY + (boxH - qrSize) / 2
 
@@ -317,12 +382,12 @@ Page({
       ctx.fill()
       ctx.stroke()
 
+      ctx.font = 'normal 17px "PingFang SC", sans-serif'
       ctx.setTextAlign('left')
       ctx.setFillStyle('#5c5348')
-      ctx.setFontSize(17)
       const sloganY = boxY + 28
       ctx.fillText(slogan, boxX + boxPad, sloganY)
-      ctx.setFontSize(12)
+      ctx.font = 'normal 12px "PingFang SC", sans-serif'
       ctx.setFillStyle('#8a7a6a')
       ctx.fillText('@拉噗噗lapupu', boxX + boxPad, sloganY + 22)
 
@@ -510,5 +575,16 @@ Page({
 
   onGoCalendar() {
     wx.reLaunch({ url: '/pages/result/result' })
+  },
+
+  onShareAppMessage() {
+    const { record } = this.data
+    const q = record
+      ? 'id=' + encodeURIComponent(record.id || '') + '&date=' + encodeURIComponent(record.date || '') + '&shape=' + encodeURIComponent(record.shape || '') + '&amount=' + encodeURIComponent(record.amount || '') + '&feeling=' + encodeURIComponent(record.feeling || '')
+      : ''
+    return {
+      title: '拉屎打卡 · 今日拉屎',
+      path: '/pages/confirm/index' + (q ? '?' + q : '')
+    }
   }
 })

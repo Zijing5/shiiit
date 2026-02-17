@@ -42,10 +42,10 @@ function getShitImageUrl(name) {
 /** 分享卡片底部小程序码：优先 CDN test 目录 qrcode.png，否则包内 /images/qrcode.png */
 function getMiniprogramQrUrl() {
   if (!IMAGE_CDN_BASE) return ''
-  return IMAGE_CDN_BASE.replace(/\/?$/, '/') + 'qrcode.jpg'
+  return IMAGE_CDN_BASE.replace(/\/?$/, '/') + 'qrcode.png'
 }
 
-const MINIPROGRAM_QR_PATH = '/images/qrcode.jpg'
+const MINIPROGRAM_QR_PATH = '/images/qrcode.png'
 
 module.exports = {
   IMAGE_CDN_BASE,

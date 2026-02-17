@@ -95,5 +95,9 @@ Page({
       latestTodayRecord: latestTodayRecord || null,
       shitIconUrl
     })
+  },
+
+  onShareAppMessage() {
+    return { title: '拉屎打卡 · 今日拉屎', path: '/pages/index/index' }
   }
 })
